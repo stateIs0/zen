@@ -176,6 +176,10 @@
     </div>
   </div>
 
+  <audio id="bgMusic" loop>
+    <source src="M5000010qS6y2wh8a0.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
     const startView = document.getElementById('start-view');
     const sessionView = document.getElementById('session-view');
@@ -188,6 +192,8 @@
     const hintText = document.getElementById('hint-text');
     const circle = document.getElementById('breath-circle');
     const inner = document.getElementById('breath-inner');
+
+    const bgMusic = document.getElementById('bgMusic');
 
     let timer = null;
     let selectedDuration = parseInt(localStorage.getItem('zenDuration')) || 1; // 从缓存读取，默认 1 分钟
@@ -218,6 +224,11 @@
       startView.classList.add('hidden');
       endView.classList.add('hidden');
       sessionView.classList.remove('hidden');
+
+      // 播放背景音乐
+      bgMusic.play().catch(err => {
+        console.log('音乐播放失败:', err);
+      });
 
       let totalSeconds = 0;
       let phaseIndex = 0;
@@ -266,6 +277,10 @@
     function endSession() {
       sessionView.classList.add('hidden');
       endView.classList.remove('hidden');
+      
+      // 停止背景音乐
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
     }
 
     startBtn.addEventListener('click', startSession);
