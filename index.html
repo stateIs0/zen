@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>1 分钟禅定</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui;
+      background: radial-gradient(circle at top, #243b53, #020617);
+      color: #e5e7eb;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+    html {
+      height: -webkit-fill-available;
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 24px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.4);
+      backdrop-filter: blur(16px);
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #9ca3af;
+      margin-bottom: 20px;
+    }
+    button {
+      margin-top: 8px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: none;
+      font-size: 15px;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 500;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+      -webkit-appearance: none;
+      touch-action: manipulation;
+      min-height: 44px;
+    }
+    button:active {
+      transform: scale(0.98);
+      background: #16a34a;
+    }
+    @media (hover: hover) {
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(34,197,94,0.4);
+        background: #16a34a;
+      }
+    }
+    .hidden {
+      display: none;
+    }
+    .breath-circle {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 2px solid rgba(148,163,184,0.6);
+      margin: 32px auto 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 4s ease-in-out, opacity 1s ease-in-out;
+      position: relative;
+    }
+    @media (max-width: 380px) {
+      .breath-circle {
+        width: 140px;
+        height: 140px;
+      }
+    }
+    .breath-circle-inner {
+      width: 40%;
+      height: 40%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #4ade80, #16a34a);
+      opacity: 0.9;
+      transition: transform 4s ease-in-out, opacity 1s ease-in-out;
+    }
+    .phase-text {
+      font-size: 18px;
+      margin-bottom: 8px;
+      margin-top: 0;
+      font-weight: 500;
+    }
+    .hint-text {
+      font-size: 14px;
+      color: #9ca3af;
+      line-height: 1.5;
+      padding: 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="start-view">
+      <h1>先停 1 分钟</h1>
+      <p>如果你现在有点烦躁，试着用 60 秒，只跟着呼吸，不做别的事情。</p>
+      <button id="start-btn">开始 1 分钟静心</button>
+    </div>
+
+    <div id="session-view" class="hidden">
+      <div class="breath-circle" id="breath-circle">
+        <div class="breath-circle-inner" id="breath-inner"></div>
+      </div>
+      <div class="phase-text" id="phase-text">准备开始</div>
+      <div class="hint-text" id="hint-text">
+        跟着圆的节奏吸气、停留、呼气。跑神了也没关系。
+      </div>
+    </div>
+
+    <div id="end-view" class="hidden">
+      <h1>谢谢你陪自己安静了一会儿</h1>
+      <p>如果你愿意，可以再用 1 分钟，只为自己。</p>
+      <button id="again-btn">再来 1 分钟</button>
+    </div>
+  </div>
+
+  <script>
+    const startView = document.getElementById('start-view');
+    const sessionView = document.getElementById('session-view');
+    const endView = document.getElementById('end-view');
+
+    const startBtn = document.getElementById('start-btn');
+    const againBtn = document.getElementById('again-btn');
+
+    const phaseText = document.getElementById('phase-text');
+    const hintText = document.getElementById('hint-text');
+    const circle = document.getElementById('breath-circle');
+    const inner = document.getElementById('breath-inner');
+
+    let timer = null;
+
+    function startSession() {
+      startView.classList.add('hidden');
+      endView.classList.add('hidden');
+      sessionView.classList.remove('hidden');
+
+      let totalSeconds = 0;
+      let phaseIndex = 0;
+
+      const phases = [
+        { label: '吸气', hint: '缓慢把气吸满，感受胸口和腹部轻轻抬起。', scale: 1.4 },
+        { label: '停留', hint: '保持片刻，不需要用力，感受呼吸停顿。', scale: 1.4 },
+        { label: '呼气', hint: '慢慢把气呼出，让肩膀自然放松下来。', scale: 0.9 },
+        { label: '停留', hint: '短暂停留，准备下一次呼吸。', scale: 0.9 },
+      ];
+
+      function applyPhase(phase) {
+        phaseText.textContent = phase.label;
+        hintText.textContent = phase.hint;
+        circle.style.transform = `scale(${phase.scale})`;
+        inner.style.transform = `scale(${phase.scale})`;
+      }
+
+      // 初始一小段准备时间
+      phaseText.textContent = '准备开始';
+      hintText.textContent = '轻轻闭上眼睛或垂下视线，等一会儿。';
+
+      if (timer) clearInterval(timer);
+
+      setTimeout(() => {
+        applyPhase(phases[phaseIndex]);
+
+        timer = setInterval(() => {
+          totalSeconds += 4; // 每个阶段 4 秒
+
+          // 切下一阶段
+          phaseIndex = (phaseIndex + 1) % phases.length;
+          applyPhase(phases[phaseIndex]);
+
+          // 60 秒结束
+          if (totalSeconds >= 60) {
+            clearInterval(timer);
+            endSession();
+          }
+        }, 4000);
+      }, 1500);
+    }
+
+    function endSession() {
+      sessionView.classList.add('hidden');
+      endView.classList.remove('hidden');
+    }
+
+    startBtn.addEventListener('click', startSession);
+    againBtn.addEventListener('click', startSession);
+  </script>
+</body>
+</html>
