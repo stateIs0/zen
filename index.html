@@ -193,6 +193,141 @@
       cursor: pointer;
       user-select: none;
     }
+    .share-btn {
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.3);
+      color: #9ca3af;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .share-btn:hover {
+      border-color: #22c55e;
+      color: #22c55e;
+      background: rgba(34,197,94,0.1);
+    }
+    .share-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+    .share-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(34,197,94,0.9);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 2000;
+    }
+    .share-toast.show {
+      opacity: 1;
+    }
+    .share-card-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      padding: 20px;
+    }
+    .share-card-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .share-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 20px;
+      padding: 32px 24px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      position: relative;
+      border: 1px solid rgba(148,163,184,0.2);
+    }
+    .share-card-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(148,163,184,0.1);
+      border-radius: 8px;
+      color: #9ca3af;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.2s;
+      padding: 0;
+      min-height: auto;
+      margin: 0;
+    }
+    .share-card-close:hover {
+      background: rgba(148,163,184,0.2);
+      color: #e5e7eb;
+      transform: none;
+    }
+    .share-card-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      background: radial-gradient(circle at 30% 20%, #4ade80, #16a34a);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+    .share-card h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: #e5e7eb;
+    }
+    .share-card-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #9ca3af;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 12px;
+      border: 1px dashed rgba(148,163,184,0.3);
+    }
+    .share-card-url {
+      font-size: 13px;
+      color: #22c55e;
+      margin-top: 8px;
+      word-break: break-all;
+    }
+    .share-card-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .share-card-actions button {
+      flex: 1;
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -234,7 +369,31 @@
       <h1>谢谢你陪自己安静了一会儿</h1>
       <p>如果你愿意，可以再来一次，只为自己。</p>
       <button id="again-btn">再来一次</button>
+      <button id="share-btn" class="share-btn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        分享给朋友
+      </button>
     </div>
+  
+  <div id="share-toast" class="share-toast">已复制到剪贴板</div>
+
+  <div id="share-card-overlay" class="share-card-overlay">
+    <div class="share-card">
+      <button class="share-card-close" id="share-card-close">×</button>
+      <div class="share-card-icon">🧘</div>
+      <h2>分享给朋友</h2>
+      <div class="share-card-text" id="share-card-text">
+        我刚刚在 Zen 禅定平静了 1 分钟，你也来试试吧。
+        <div class="share-card-url" id="share-card-url"></div>
+      </div>
+      <div class="share-card-actions">
+        <button id="copy-share-btn">复制文案</button>
+        <button id="native-share-btn" style="display: none;">系统分享</button>
+      </div>
+    </div>
+  </div>
   </div>
 
   <audio id="bgMusic" loop>
@@ -310,11 +469,11 @@
       let totalSeconds = 0;
       let phaseIndex = 0;
 
+      // 4-7-8 呼吸法
       const phases = [
-        { label: '吸气', hint: '缓慢把气吸满，感受胸口和腹部轻轻抬起。', scale: 1.4 },
-        { label: '停留', hint: '保持片刻，不需要用力，感受呼吸停顿。', scale: 1.4 },
-        { label: '呼气', hint: '慢慢把气呼出，让肩膀自然放松下来。', scale: 0.9 },
-        { label: '停留', hint: '短暂停留，准备下一次呼吸。', scale: 0.9 },
+        { label: '吸气', hint: '用鼻子缓慢吸气，感受胸口和腹部轻轻抬起。', duration: 4, scale: 1.4 },
+        { label: '屏息', hint: '保持呼吸，不需要用力，感受身体的平静。', duration: 7, scale: 1.4 },
+        { label: '呼气', hint: '用嘴缓慢呼出，让肩膀自然放松下来。', duration: 8, scale: 0.9 },
       ];
 
       function applyPhase(phase) {
@@ -332,28 +491,35 @@
 
       const targetSeconds = selectedDuration * 60;
 
+      function runBreathCycle() {
+        const phase = phases[phaseIndex];
+        applyPhase(phase);
+        totalSeconds += phase.duration;
+
+        // 达到目标时长结束
+        if (totalSeconds >= targetSeconds) {
+          endSession();
+          return;
+        }
+
+        // 切下一阶段
+        phaseIndex = (phaseIndex + 1) % phases.length;
+        
+        // 根据当前阶段的时长设置下一次执行
+        setTimeout(runBreathCycle, phase.duration * 1000);
+      }
+
       setTimeout(() => {
-        applyPhase(phases[phaseIndex]);
-
-        timer = setInterval(() => {
-          totalSeconds += 4; // 每个阶段 4 秒
-
-          // 切下一阶段
-          phaseIndex = (phaseIndex + 1) % phases.length;
-          applyPhase(phases[phaseIndex]);
-
-          // 达到目标时长结束
-          if (totalSeconds >= targetSeconds) {
-            clearInterval(timer);
-            endSession();
-          }
-        }, 4000);
+        runBreathCycle();
       }, 3750);
     }
 
     function endSession() {
       sessionView.classList.add('hidden');
       endView.classList.remove('hidden');
+      
+      // 记录完成的时长
+      completedDuration = selectedDuration;
       
       // 停止背景音乐
       bgMusic.pause();
@@ -362,6 +528,93 @@
 
     startBtn.addEventListener('click', startSession);
     againBtn.addEventListener('click', startSession);
+
+    // 分享功能
+    const shareBtn = document.getElementById('share-btn');
+    const shareToast = document.getElementById('share-toast');
+    const shareCardOverlay = document.getElementById('share-card-overlay');
+    const shareCardClose = document.getElementById('share-card-close');
+    const shareCardText = document.getElementById('share-card-text');
+    const shareCardUrl = document.getElementById('share-card-url');
+    const copyShareBtn = document.getElementById('copy-share-btn');
+    const nativeShareBtn = document.getElementById('native-share-btn');
+    let completedDuration = 0;
+
+    // 检测是否支持原生分享
+    if (navigator.share) {
+      nativeShareBtn.style.display = 'block';
+    }
+
+    shareBtn.addEventListener('click', () => {
+      const minutes = completedDuration || selectedDuration;
+      const url = window.location.href;
+      const text = `我刚刚在 Zen 禅定平静了 ${minutes} 分钟，你也来试试吧。`;
+      
+      // 更新卡片内容
+      shareCardText.innerHTML = `${text}<div class="share-card-url">${url}</div>`;
+      
+      // 显示分享卡片
+      shareCardOverlay.classList.add('show');
+    });
+
+    // 关闭分享卡片
+    shareCardClose.addEventListener('click', () => {
+      shareCardOverlay.classList.remove('show');
+    });
+
+    shareCardOverlay.addEventListener('click', (e) => {
+      if (e.target === shareCardOverlay) {
+        shareCardOverlay.classList.remove('show');
+      }
+    });
+
+    // 复制文案
+    copyShareBtn.addEventListener('click', () => {
+      const minutes = completedDuration || selectedDuration;
+      const shareText = `我刚刚在 Zen 禅定平静了 ${minutes} 分钟，你也来试试吧。\n${window.location.href}`;
+      copyToClipboard(shareText);
+    });
+
+    // 原生分享
+    nativeShareBtn.addEventListener('click', () => {
+      const minutes = completedDuration || selectedDuration;
+      const shareText = `我刚刚在 Zen 禅定平静了 ${minutes} 分钟，你也来试试吧。`;
+      
+      navigator.share({
+        title: 'Zen 禅定',
+        text: shareText,
+        url: window.location.href,
+      }).catch(err => {
+        console.log('分享失败:', err);
+      });
+    });
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast();
+        shareCardOverlay.classList.remove('show');
+      }).catch(err => {
+        console.log('复制失败:', err);
+        // 降级方案
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast();
+        shareCardOverlay.classList.remove('show');
+      });
+    }
+
+    function showToast() {
+      shareToast.classList.add('show');
+      setTimeout(() => {
+        shareToast.classList.remove('show');
+      }, 2000);
+    }
 
     // 全屏功能
     const fullscreenBtn = document.getElementById('fullscreen-btn');
