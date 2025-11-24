@@ -116,14 +116,47 @@
       line-height: 1.5;
       padding: 0 8px;
     }
+    .duration-selector {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .duration-btn {
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: transparent;
+      color: #9ca3af;
+      font-size: 14px;
+      min-height: auto;
+      margin: 0;
+      transition: all 0.2s;
+    }
+    .duration-btn.active {
+      background: rgba(34,197,94,0.15);
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+    .duration-btn:active {
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <div id="start-view">
-      <h1>先停 1 分钟</h1>
-      <p>如果你现在有点烦躁，试着用 60 秒，只跟着呼吸，不做别的事情。</p>
-      <button id="start-btn">开始 1 分钟静心</button>
+      <h1>先停一会儿</h1>
+      <p>如果你现在有点烦躁，试着跟着呼吸，不做别的事情。</p>
+      <div class="duration-selector">
+        <button class="duration-btn active" data-duration="1">1 分钟</button>
+        <button class="duration-btn" data-duration="3">3 分钟</button>
+        <button class="duration-btn" data-duration="5">5 分钟</button>
+        <button class="duration-btn" data-duration="15">15 分钟</button>
+        <button class="duration-btn" data-duration="30">30 分钟</button>
+      </div>
+      <button id="start-btn">开始静心</button>
     </div>
 
     <div id="session-view" class="hidden">
@@ -138,8 +171,8 @@
 
     <div id="end-view" class="hidden">
       <h1>谢谢你陪自己安静了一会儿</h1>
-      <p>如果你愿意，可以再用 1 分钟，只为自己。</p>
-      <button id="again-btn">再来 1 分钟</button>
+      <p>如果你愿意，可以再来一次，只为自己。</p>
+      <button id="again-btn">再来一次</button>
     </div>
   </div>
 
@@ -157,6 +190,29 @@
     const inner = document.getElementById('breath-inner');
 
     let timer = null;
+    let selectedDuration = parseInt(localStorage.getItem('zenDuration')) || 1; // 从缓存读取，默认 1 分钟
+
+    // 时长选择按钮
+    const durationBtns = document.querySelectorAll('.duration-btn');
+    
+    // 初始化：根据缓存设置选中状态
+    durationBtns.forEach(btn => {
+      if (parseInt(btn.dataset.duration) === selectedDuration) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // 点击时长按钮
+    durationBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        durationBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedDuration = parseInt(btn.dataset.duration);
+        localStorage.setItem('zenDuration', selectedDuration); // 保存到缓存
+      });
+    });
 
     function startSession() {
       startView.classList.add('hidden');
@@ -186,6 +242,8 @@
 
       if (timer) clearInterval(timer);
 
+      const targetSeconds = selectedDuration * 60;
+
       setTimeout(() => {
         applyPhase(phases[phaseIndex]);
 
@@ -196,8 +254,8 @@
           phaseIndex = (phaseIndex + 1) % phases.length;
           applyPhase(phases[phaseIndex]);
 
-          // 60 秒结束
-          if (totalSeconds >= 60) {
+          // 达到目标时长结束
+          if (totalSeconds >= targetSeconds) {
             clearInterval(timer);
             endSession();
           }
